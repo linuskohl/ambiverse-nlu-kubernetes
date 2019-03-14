@@ -1,0 +1,257 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nlu-ambiverse-nlu-default-config
+  namespace: nlu-ambiverse
+  selfLink: /api/v1/namespaces/nlu-ambiverse/configmaps/nlu-ambiverse-nlu-default-config
+data:
+  aida.properties: |
+    dataaccess = sql
+    dataaccess.cache.enable = true
+    # Wait for DB startup
+    dataaccess.startup.wait = true
+    dataaccess.startup.timeoutins = 10800
+    # Keyphrases are not necessary for LanguageModel contexts.
+    dataaccess.cache.keyphrases.enable=false
+    graph.entities.maxcount=0
+    graph.entities.comp.threads=8
+    # Number of Entity contexts to cache (across documents).
+    entities.cache.size=2000
+    # Format is [knowledgebase:typename,knowledgebase:typename, ...etc].
+    entities.filter.types=
+    entities.candidate.lookup.source=DATABASE
+    entities.candiadate.lookup.mention.isprefix=false
+    # Maximal number of sentences per chunk. 25 should be roughly one page.
+    document.chunking.strategy.fixedlength.size=25
+    dictionary.fuzzy.postgres.enable=false
+    dictionary.fuzzy.postgres.minsim=0.7
+    dictionary.fuzzy.lsh.minsim=0.8
+    training.corpus=conll
+    dataacess.cache.preload=false
+    language.preload=false
+    language.detector=OPTIMAIZE
+    language.detector.preload=false
+    document.parallel.count=30
+    languages = en,cs,de,es,ru,zh
+    # Can be either knowner or stanford
+    webservice.ner = stanford
+    en.stopwords=src/main/resources/tokens/stopwords6.txt
+    es.stopwords=src/main/resources/tokens/stopwords-spanish.txt
+    de.stopwords=src/main/resources/tokens/stopwords-german.txt
+    zh.stopwords=src/main/resources/tokens/stopwords-chinese.txt
+    cs.stopwords=src/main/resources/tokens/stopwords-czech.txt
+    ar.stopwords=src/main/resources/tokens/stopwords-arabic.txt
+    ru.stopwords=src/main/resources/tokens/stopwords-russian.txt
+    en.symbols=src/main/resources/tokens/symbols.txt
+    es.symbols=src/main/resources/tokens/symbols.txt
+    de.symbols=src/main/resources/tokens/symbols.txt
+    zh.symbols=src/main/resources/tokens/symbols.txt
+    cs.symbols=src/main/resources/tokens/symbols.txt
+    ar.symbols=src/main/resources/tokens/symbols.txt
+    ru.symbols=src/main/resources/tokens/symbols.txt
+    en.dummysentence=Messi and Maradona played soccer in Barcelona. Maradona also played in Napoli.
+    zh.dummysentence=梅西和马拉多纳在巴萨踢足球。马拉多纳在那不勒斯也发挥。
+    es.dummysentence=Messi juega al futbol en Barcelona. Maradona tambien jugo en Barcelona y luego fue al Napoli.
+    de.dummysentence=Lionel Messi will nicht mehr für die argentinische Fußball-Nationalmannschaft spielen.
+    cs.dummysentence=Albert Einstein (14. března 1879 Ulm, Německo – 18. dubna 1955 Princeton, New Jersey, USA) byl teoretický fyzik, jeden z nejvýznamnějších vědců všech dob. Často je označován za největšího vědce 20. století, případně spolu s Newtonem za nejvýznamnějšího fyzika vůbec. Mezi jeho příspěvky fyzice patří speciální teorie relativity (1905), myšlenka kvantování elektromagnetického pole a vysvětlení fotoefektu (1905), vysvětlení Brownova pohybu (1905) a snad nejvíce obecná teorie relativity (1915), která doposud nejlépe popisuje vesmír ve velkých měřítkách.
+    ru.dummysentence=Он также предсказал гравитационные волны и «квантовую телепортацию», предсказал и измерил гиромагнитный эффект Эйнштейна — де Хааза. С 1933 года работал над проблемами космологии и единой теории поля. Активно выступал против войны, против применения ядерного оружия, за гуманизм, уважение прав человека, взаимопонимание между народами.
+  cassandra.properties: |+
+    # The name of the cassandra keyspace
+    keyspace = aida_20180120_cs_de_en_es_ru_zh_v18
+    # The host name (comma-separated list)
+    host = db
+    # Default fetch size
+    page.size = 100000
+    load.balancing.policy = RoundRobinPolicy
+    replication.factor = 2
+  database_aida.properties: |-
+    dataSourceClassName=org.postgresql.ds.PGSimpleDataSource
+    dataSource.serverName = db
+    dataSource.databaseName = aida_20180120_cs_de_en_es_ru_zh_v18
+    dataSource.portNumber =
+    dataSource.user = ambiversenlu
+    dataSource.password = ambiversenlu
+    maximumPoolSize = 5
+    connectionTimeout = 300000
+  ner.properties: |
+    #location of production models
+    models_path=/GW/ambiverse/work/resources/knowner/model
+    #location of newly trained models
+    trained_models_directory=/GW/ambiverse/work/resources/knowner/trained_models
+    #location of evaluation of the newly trained models
+    trained_models_evaluation_directory=/GW/ambiverse/work/resources/knowner/trained_models/evaluation
+    #from which resources to train
+    lang_resources_location=/GW/ambiverse/work/resources/knowner/generated_configurations
+    #dkpro framework for training ner models
+    dkpro_home=/tmp/dk-pro/dkpro-core
+    #binary of the conll evaluation software
+    conll_eval_path=src/main/resources/ner/bin/conlleval
+    languages = en,cs,de,es,ru
+    #load the models from the classpath loaded as maven dependencies, or from a local directory
+    #if the flag is false, the variables 'trained_models_directory' and  'trained_models_directory' are used to fetched the models.
+    load_models_from_classpath = true
+  preparation.properties: |-
+    # Can be any DataPrepConf
+    preparation.config=YAGO3
+    # Set this if YAGO3 should be built from the file.
+    yago3.file = aidaFacts.tsv
+    target.db=YAGO
+    # === Unit generation Settings ===
+    # Flag to create the entity_keywords and keyword_counts table
+    database.create.keywords=true
+    # Flag to create the entity_bigrams and bigram_counts table
+    database.create.bigrams=true
+    # The maximum number of keyphrases that should be taken for unit creation (0 = all)
+    database.unit.creation.threshold.topk=0
+    # The maximum weight of the keyphrases that should be taken for unit creation (-1.0 = all)
+    database.unit.creation.threshold.min.weight=-1.0
+    # Minimum count an anchor has to link to an entity to be included in the dictionary.
+    dictionary.anchors.minoccurrence=3
+    # === Metadata settings ===
+    # If set to true, makes sure that KnowNER resources are not created partially. Set to false when you want partial creation.
+    knowner.createnew=false
+  salience.properties: |-
+    #Disambiguation defaults
+    disambiguation.coherent=true
+    disambiguation.confidenceThreshold=0.075
+    features.extractor=ENTITY_SALIENCE
+    salience.annotator=DISAMBIGUATION
+    classification.method=RANDOM_FOREST
+    classification.strategy=SALIENCE
+    #Training settings
+    #Set maxCategories so features with > 4 distinct values are treated as continuous.
+    training.maxCategories=2
+    training.positiveInstanceScalingFactor=7
+    evaluation.numFolds=3
+    #Allowed values f1|precision|recall|weightedPrecision|weightedRecall
+    evaluation.metricName=f1
+    seed=12345
+    #Decision Trees parameters (Decision Trees, Random Forest, Gradient Boosted Trees)
+    #Random Forest parameters
+    tree.maxBins=1000
+    tree.numTrees=100
+    tree.maxDepth=12
+    tree.subsamplingRate=
+    tree.featureSubsetStrategy=auto
+    tree.impurity=
+    #Values for cross validation
+    tree.numTreesX=100,200
+    tree.maxDepthX=10,12
+    tree.subsamplingRateX=
+    #Max Itereations for some ML algorithms.
+    maxIterations=10
+    maxIterationsX=10,12,14
+    #Logistic Regression
+    lr.regParam=0.3
+    lr.elasticNetParam=0.8
+    #Values for cross validation
+    lr.regParamCV=0.1,0.01,0.001
+    lr.elasticNetParamCV=0.6,0.8
+    #MPC
+    mpc.layers=4,5,4,3
+    mpc.blockSize=128
+    #Aida Caches
+    aida.cache_root_hdfs=hdfs:/cache-dir
+    aida.default_conf=db
+    aida.bigram_count=aida-bigram_count.cache
+    aida.keyword_count=aida-keyword_count.cache
+    aida.word_expansions=aida-word_expansions.cache
+    aida.word_contactions=aida-word_contractions.cache
+    aida.cassandra_config=cassandra_config.cache
+    aida.db.database_aida=database_aida.cache
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nlu-ambiverse-nlu-aida-20180120-b3-de-en-v18-cass-config
+  namespace: nlu-ambiverse
+  selfLink: /api/v1/namespaces/nlu-ambiverse/configmaps/nlu-ambiverse-nlu-aida-20180120-b3-de-en-v18-cass-config
+data:
+  aida.properties: dataaccess = cassandra
+  cassandra.properties: |+
+    # The name of the cassandra keyspace
+    keyspace = aida_20180120_b3_de_en_v18
+    # The host name (comma-separated list)
+    host = cassandra:9042
+  ner.properties: |-
+    # dump_name = aida_20180120_cs_de_en_es_ru_zh_v18
+    dump_name = aida_20180120_b3_de_en_v18
+    languages = en
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nlu-ambiverse-nlu-aida-20180120-cs-de-en-es-ru-zh-v18-cass-config
+  namespace: nlu-ambiverse
+  selfLink: /api/v1/namespaces/default/configmaps/nlu-ambiverse-nlu-aida-20180120-cs-de-en-es-ru-zh-v18-cass-config
+data:
+  aida.properties: dataaccess = cassandra
+  cassandra.properties: |+
+    # The name of the cassandra keyspace
+    keyspace = aida_20180120_cs_de_en_es_ru_zh_v18
+    # The host name (comma-separated list)
+    host = cassandra:9042
+  ner.properties: |-
+    languages = en,cs,de,es,ru
+    dump_name = aida_20180120_cs_de_en_es_ru_zh_v18
+    #load the models from the classpath loaded as maven dependencies, or from a local directory
+    #if the flag is false, the variables 'trained_models_directory' and  'trained_models_directory' are used to fetched the models.
+    load_models_from_classpath = true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nlu-ambiverse-neo4j-props
+  namespace: nlu-ambiverse
+  selfLink: /api/v1/namespaces/nlu-ambiverse/configmaps/nlu-ambiverse-neo4j-props
+data:
+  # make sure to adapt the neo4j settings according to the rest of the setup
+  neo4j.properties: |
+    neo4j.uri=bolt://neo4j:7687
+    neo4j.user=neo4j
+    neo4j.password=neo4j_pass
+    startup.wait=true
+    startup.timeoutins=10800
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nlu-ambiverse-config
+  namespace: nlu-ambiverse
+  selfLink: /api/v1/namespaces/nlu-ambiverse/configmaps/nlu-ambiverse-config
+data:
+  # global
+
+  # nlu -----------------------------------------------------------------------
+  
+  AIDA_CONF: aida_20180120_cs_de_en_es_ru_zh_v18_cass
+  # AIDA_CONF: aida_20180120_cs_de_en_es_ru_zh_v18_cass_2
+  # AIDA_CONF: aida_20180120_b3_de_en_v18_cass
+  
+  
+
+  # cassandra -----------------------------------------------------------------
+  
+  # A sample database containing companies in the DJIA and related entities
+  # DATABASE_NAME: aida_20180120_b3_de_en_v18 
+  # full database dump extracted from YAGO (Wikipedia dump from 20180120) in six languages 
+  # (czech, german, english, spanish, russian and chinese).
+  DATABASE_NAME: aida_20180120_cs_de_en_es_ru_zh_v18
+  
+  
+  # neo4j ---------------------------------------------------------------------
+  
+  DUMP_NAME: yago_aida_en20180120_de20180120_b38980492507620687f0729ddd2c43d2
+  # A small database dump of YAGO (Wikipedia dump from 20180120) nodes and relations in two languages (german and english). 
+  # Compressed, the file is 450MB big, but once loaded in the neo4j container it will take around 5GB of space.
+  NEO4J_dbms_active__database: yago_aida_en20180120_de20180120_b38980492507620687f0729ddd2c43d2.db
+  # Full database dump of YAGO (Wikipedia dump from 20180120) nodes and relations in six languages 
+  # (czech, german, english, spanish, russian and chinese). 
+  # Compressed, the file is 10GB big, but once loaded in the neo4j container it will take around 100GB of space.
+  # NEO4J_dbms_active__database: yago_aida_en20180120_cs20180120_de20180120_es20180120_ru20180120_zh20180120.db
+  NEO4J_dbms_memory_pagecache_size: 2G
+  NEO4J_dbms_memory_heap_initial__size: 2G
+  NEO4J_dbms_memory_heap_max__size: 2G
+  NEO4J_dbms_connectors_default__listen__address: "0.0.0.0"
+  NEO4J_dbms_security_procedures_unrestricted: apoc.*
+  NEO4J_AUTH: neo4j/neo4j_pass

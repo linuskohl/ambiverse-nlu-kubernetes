@@ -1,0 +1,50 @@
+# documentation:
+# https://github.com/ambiverse-nlu/dockerfiles/tree/master/ambiverse-kg
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nlu
+  namespace: nlu-ambiverse
+  labels:
+    app: nlu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nlu
+  template:
+    metadata:
+      labels:
+        app: nlu
+    spec:
+      containers:
+        - name: nlu
+          image: ambiverse/ambiverse-nlu:latest
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 8080
+          env:
+            - name: AIDA_CONF
+              valueFrom: 
+                configMapKeyRef:
+                  name: nlu-ambiverse-config
+                  key: AIDA_CONF
+          volumeMounts:
+           # - name: default-config
+           #   mountPath: /ambiverse-nlu/src/main/config/default  
+           # - name: aida-20180120-b3-de-en-v18-cass-config
+           #   mountPath: /ambiverse-nlu/src/main/config/aida_20180120_b3_de_en_v18_cass
+            - name: aida-20180120-cs-de-en-es-ru-zh-v18-cass-config
+              mountPath: /ambiverse-nlu/src/main/config/aida_20180120_cs_de_en_es_ru_zh_v18_cass
+      # nodeSelector:
+      #  cloud.google.com/gke-nodepool: highmem-pool
+      volumes:
+        - name: default-config
+          configMap:
+            name: nlu-ambiverse-nlu-default-config
+        - name: aida-20180120-b3-de-en-v18-cass-config
+          configMap:
+            name: nlu-ambiverse-nlu-aida-20180120-b3-de-en-v18-cass-config
+        - name: aida-20180120-cs-de-en-es-ru-zh-v18-cass-config
+          configMap:
+            name: nlu-ambiverse-nlu-aida-20180120-cs-de-en-es-ru-zh-v18-cass-config

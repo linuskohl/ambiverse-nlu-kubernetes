@@ -1,0 +1,33 @@
+# documentation
+# https://github.com/ambiverse-nlu/dockerfiles/tree/master/ambiverse-kg
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: knowledgegraph
+  namespace: nlu-ambiverse
+  labels:
+    app: knowledgegraph
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: knowledgegraph
+  template:
+    metadata:
+      labels:
+        app: knowledgegraph
+    spec:
+      containers:
+        - name: knowledgegraph
+          image: ambiverse/ambiverse-kg:latest
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 8080
+          volumeMounts:
+            - name: neo4j-vol
+              mountPath: /ambiverse-kg/src/main/resources/default/neo4j.properties
+              subPath: neo4j.properties
+      volumes:
+        - name: neo4j-vol
+          configMap:
+            name: nlu-ambiverse-neo4j-props
